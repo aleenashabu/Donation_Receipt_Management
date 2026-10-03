@@ -1,11 +1,12 @@
-import { Injectable, UnauthorizedException } //This creates an HTTP 401 Unauthorized response.
+
+import { Injectable, UnauthorizedException }  //This creates an HTTP 401 Unauthorized response.
 from '@nestjs/common';
-import { JwtService } from '@nestjs/jwt'; //after a successful login, we want to create a token.
+import { JwtService } from '@nestjs/jwt';   //after a successful login, we want to create a token.
 import bcrypt from 'bcrypt'; //to check whether that password matches the stored hash.
 import { db } from '../prisma/db.js'; //mports the database connection
 
 @Injectable()
-export class AuthService //we'll put authentication-related logic.
+export class AuthService //we put authentication-related logic here.
  {
   constructor(private readonly jwtService: JwtService) {}
 
@@ -34,6 +35,33 @@ export class AuthService //we'll put authentication-related logic.
 
     return {
       access_token: accessToken,   // frontend recieves the token
+    };
+  }
+
+   async register(name: string, email: string, password: string) {
+    const existingUser = await db.orm.public.User
+      .where({ email })
+      .first();
+
+    if (existingUser) {
+      throw new UnauthorizedException('Email already registered');
+    }
+
+    const passwordHash = await bcrypt.hash(password, 10);
+
+    const user = await db.orm.public.User.create({
+      name,
+      email,
+      passwordHash,
+    });
+
+    return {
+      message: 'Registration successful',
+      user: {
+        id: user.id,
+        name: user.name,
+        email: user.email,
+      },
     };
   }
 }

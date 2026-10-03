@@ -11,6 +11,21 @@ export class AuthController {
   ) {
     return this.authService.login(body.email, body.password);
   }
+
+  @Post('register')
+   async register(
+     @Body() body: {
+      name: string;
+      email: string;
+      password: string;
+    },
+  ) {
+    return this.authService.register(
+      body.name,
+      body.email,
+      body.password,
+    );
+  }  
 }
 
-// it creates this api POST /auth/login
+// it creates this api POST /auth/login and POST /auth/register
