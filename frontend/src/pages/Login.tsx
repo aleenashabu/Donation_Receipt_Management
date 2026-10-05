@@ -1,36 +1,84 @@
 import { useState } from "react";
 import Register from "./Register";
+import Dashboard from "./Dashboard";
 
 function Login() 
 {
     const [email, setEmail] = useState('')
     const[password,setPassword]=useState('')
     const[showRegister,setShowRegister]=useState(false);
-    const handleLogin=()=>{
+    const[showDashboard,setShowDashboard]=useState(false);
+    
+    const resetLogin = () => {
+    setEmail('');
+    setPassword('');
+    };
 
-         if (email === "") {
-    alert("Please enter your email");
-    return;
-  }
+    const handleLogin = async () => {
+  if (email.trim() === "") {
+  alert("Please enter your email");
+  return;
+}
 
-  const emailPattern = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+const emailPattern =
+  /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.(com|in|org|net|edu)$/;
 
-  if (!emailPattern.test(email)) {
-    alert("Please enter a valid email address");
-    return;
-  }
+if (!emailPattern.test(email.trim())) {
+  alert("Please enter a valid email address");
+  return;
+}
 
   if (password === "") {
     alert("Please enter your password");
     return;
   }
 
-  alert("Login form is valid");
-        
+  try {
+    const response = await fetch("http://localhost:3000/auth/login", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({
+        email: email,
+        password: password,
+      }),
+    });
+
+    const data = await response.json();
+
+    // Wrong email or password
+    if (!response.ok) {
+      alert(data.message || "Invalid email or password");
+      return;
     }
-    if(showRegister){
-        return <Register/>;
-    }
+
+    // Correct email and password
+    setShowDashboard(true);
+
+  } catch (error) {
+    alert("Unable to connect to the server");
+  }
+};
+
+if (showRegister) {
+  return (<Register 
+  onRegisterSuccess={()=> {
+    resetLogin();
+    setShowRegister(false)
+  }}
+   />
+);
+}
+
+if (showDashboard) {
+  return (<Dashboard onLogout={() => {
+    resetLogin();
+    setShowDashboard(false)
+  }}
+  />
+);
+}
 
     return(
         <div className="login-page">

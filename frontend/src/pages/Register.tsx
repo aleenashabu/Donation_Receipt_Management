@@ -1,6 +1,6 @@
 import {useState} from "react";
 
-function Register(){
+function Register({ onRegisterSuccess }: { onRegisterSuccess: () => void }){
 const [name,setName]=useState('');
 const [email,setEmail]=useState('');
 const [password,setPassword]=useState('');
@@ -12,12 +12,18 @@ const handleRegister = async () => {
       return;
     }
 
-    const emailPattern = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+   if (email.trim() === "") {
+  alert("Please enter your email");
+  return;
+}
 
-  if (!emailPattern.test(email)) {
-    alert("Please enter a valid email address");
-    return;
-  }
+const emailPattern =
+  /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.(com|in|org|net|edu)$/;
+
+if (!emailPattern.test(email.trim())) {
+  alert("Please enter a valid email address");
+  return;
+}
 
     if (password === "") {
       alert("Please enter your password");
@@ -55,6 +61,7 @@ const handleRegister = async () => {
   }
 
   alert("Registration successful!");
+  onRegisterSuccess();
 } catch (error) {
   alert("Unable to connect to the server");
 }
