@@ -6,30 +6,43 @@ type Donor = {
   lastName: string;
   email: string;
   phone: string;
+  address: string;
+  city: string;
+  province: string;
+  postalCode: string;
+  country: string;
   isActive: boolean;
 };
 
 function Donors({
   onAddDonor,
+  onEditDonor,
+  onDeactivateDonor,
 }: {
   onAddDonor: () => void;
+  onEditDonor: (donor: Donor) => void;
+  onDeactivateDonor: (id: number) => Promise<boolean>;
 }) {
   const [donors, setDonors] = useState<Donor[]>([]);
   const [loading, setLoading] = useState(true);
   const [search, setSearch] = useState("");
 
-  useEffect(() => {
-    fetch("http://localhost:3000/donors")
-      .then((response) => response.json())
-      .then((data) => {
-        setDonors(data);
-        setLoading(false);
-      })
-      .catch((error) => {
-        console.error("Error loading donors:", error);
-        setLoading(false);
-      });
-  }, []);
+  const loadDonors = () => {
+  fetch("http://localhost:3000/donors")
+    .then((response) => response.json())
+    .then((data) => {
+      setDonors(data);
+      setLoading(false);
+    })
+    .catch((error) => {
+      console.error("Error loading donors:", error);
+      setLoading(false);
+    });
+};
+
+useEffect(() => {
+  loadDonors();
+}, []);
 
   const filteredDonors = donors.filter((donor) => {
     const name = `${donor.firstName} ${donor.lastName}`.toLowerCase();
@@ -82,29 +95,60 @@ function Donors({
           <p className="donor-message">No donors found.</p>
         ) : (
           filteredDonors.map((donor) => (
-            <div className="donor-list-row" key={donor.id}>
+  <div className="donor-list-row" key={donor.id}>
+  <span>
+    {donor.firstName} {donor.lastName}
+  </span>
 
-              <span>
-                {donor.firstName} {donor.lastName}
-              </span>
+  <span>{donor.email}</span>
 
-              <span>{donor.email}</span>
+  <span>{donor.phone}</span>
 
-              <span>{donor.phone}</span>
+  <span>
+    <span
+      className={
+        donor.isActive
+          ? "donor-status active"
+          : "donor-status inactive"
+      }
+    >
+      {donor.isActive ? "Active" : "Inactive"}
+    </span>
+  </span>
 
-              <span>
-                <span
-                  className={
-                    donor.isActive
-                      ? "donor-status active"
-                      : "donor-status inactive"
-                  }
-                >
-                  {donor.isActive ? "Active" : "Inactive"}
-                </span>
-              </span>
+  <button
+    className="edit-donor-button"
+    onClick={() => onEditDonor(donor)}
+  >
+    Edit
+  </button>
 
-            </div>
+  <button
+  className="deactivate-donor-button"
+  onClick={() => {
+    if (
+      window.confirm(
+        `Are you sure you want to deactivate ${donor.firstName} ${donor.lastName}?`
+      )
+    ) {
+      onDeactivateDonor(donor.id).then((success) => {
+  if (success) {
+    setDonors((currentDonors) =>
+      currentDonors.map((currentDonor) =>
+        currentDonor.id === donor.id
+          ? { ...currentDonor, isActive: false }
+          : currentDonor
+      )
+    );
+  }
+});
+    }
+  }}
+>
+  Deactivate
+</button>
+
+</div>
           ))
         )}
 

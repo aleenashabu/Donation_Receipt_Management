@@ -1,9 +1,25 @@
 import { useState } from "react";
 import Donors from "./Donors";
 import AddDonor from "./AddDonor";
+import EditDonor from "./EditDonor";
+
+type Donor = {
+  id: number;
+  firstName: string;
+  lastName: string;
+  email: string;
+  phone: string;
+  address: string;
+  city: string;
+  province: string;
+  postalCode: string;
+  country: string;
+  isActive: boolean;
+};
 
 function Dashboard({ onLogout }: { onLogout: () => void }) {
   const [currentPage, setCurrentPage] = useState("dashboard");
+  const [selectedDonor, setSelectedDonor] = useState<Donor | null>(null);
 
   return (
     <div className="dashboard-page">
@@ -154,14 +170,53 @@ function Dashboard({ onLogout }: { onLogout: () => void }) {
       {currentPage === "donors" && (
   <div className="dashboard-content">
     <Donors
-      onAddDonor={() => setCurrentPage("add-donor")}
-    />
+  onAddDonor={() => setCurrentPage("add-donor")}
+  onEditDonor={(donor) => {
+    setSelectedDonor(donor);
+    setCurrentPage("edit-donor");
+  }}
+  onDeactivateDonor={async (id) => {
+    try {
+      const response = await fetch(
+        `http://localhost:3000/donors/${id}/deactivate`,
+        {
+          method: "PATCH",
+        }
+      );
+
+      const data = await response.json();
+
+      if (!response.ok) {
+        alert(data.message || "Failed to deactivate donor");
+        return false;
+      }
+
+      alert("Donor deactivated successfully");
+
+      return true;
+    } catch (error) {
+      console.error("Error deactivating donor:", error);
+      alert("Unable to connect to the backend");
+      return false;
+    }
+  }}
+/>
   </div>
 )}
 
 {currentPage === "add-donor" && (
   <div className="dashboard-content">
-    <AddDonor onCancel={()=>setCurrentPage("donors")} />
+    <AddDonor onCancel={() => setCurrentPage("donors")} />
+  </div>
+)}
+
+{currentPage === "edit-donor" && selectedDonor && (
+  <div className="dashboard-content">
+    <EditDonor
+      donor={selectedDonor}
+      onCancel={() => setCurrentPage("donors")}
+      onUpdate={() => setCurrentPage("donors")}
+    />
   </div>
 )}
 
