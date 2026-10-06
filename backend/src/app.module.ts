@@ -4,6 +4,7 @@ import { AppController } from './app.controller.js';
 import { AppService } from './app.service.js';
 import { AuthModule } from './auth/auth.module.js';
 import { DonorsModule } from './donors/donors.module.js';
+import { DonationsModule } from './donations/donations.module.js';
 
 @Module({
   imports: [
@@ -12,6 +13,7 @@ import { DonorsModule } from './donors/donors.module.js';
     }),
     AuthModule,
     DonorsModule,
+    DonationsModule,
   ],
   controllers: [AppController],
   providers: [AppService],
