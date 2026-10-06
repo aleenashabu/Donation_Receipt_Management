@@ -1,6 +1,10 @@
 import { useState } from "react";
 
-function AddDonor() {
+function AddDonor({
+  onCancel,
+}: {
+  onCancel: () => void;
+}) {
   const [firstName, setFirstName] = useState("");
   const [lastName, setLastName] = useState("");
   const [email, setEmail] = useState("");
@@ -210,7 +214,7 @@ const handleSubmit = async () => {
         </div>
 
         <div className="form-buttons">
-          <button className="cancel-button">
+          <button className="cancel-button" onClick={onCancel}>
             Cancel
           </button>
 

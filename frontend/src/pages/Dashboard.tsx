@@ -161,7 +161,7 @@ function Dashboard({ onLogout }: { onLogout: () => void }) {
 
 {currentPage === "add-donor" && (
   <div className="dashboard-content">
-    <AddDonor />
+    <AddDonor onCancel={()=>setCurrentPage("donors")} />
   </div>
 )}
 

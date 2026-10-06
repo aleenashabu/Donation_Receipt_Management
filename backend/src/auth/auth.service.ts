@@ -3,7 +3,7 @@ import { Injectable, UnauthorizedException }  //This creates an HTTP 401 Unautho
 from '@nestjs/common';
 import { JwtService } from '@nestjs/jwt';   //after a successful login, we want to create a token.
 import bcrypt from 'bcrypt'; //to check whether that password matches the stored hash.
-import { db } from '../prisma/db.js'; //mports the database connection
+import { db } from '../prisma/db.js'; //imports the database connection
 
 @Injectable()
 export class AuthService //we put authentication-related logic here.
