@@ -31,6 +31,12 @@ async findOne(@Param('id') id: string) {
   return this.donorsService.findOne(Number(id));
 }
 
+@Get(':id/details')
+async getDetails(@Param('id') id: string) {
+  return this.donorsService.getDetails(Number(id));
+}
+
+
 @Patch(':id/deactivate')
 async deactivate(@Param('id') id: string) {
   return this.donorsService.deactivate(Number(id));

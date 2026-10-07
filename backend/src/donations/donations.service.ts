@@ -1,16 +1,54 @@
-import { Injectable ,  NotFoundException } from '@nestjs/common';
+import { Injectable, NotFoundException } from '@nestjs/common';
 import { CreateDonationDto } from './dto/create-donation.dto.js';
 import { db } from '../prisma/db.js';
 import { UpdateDonationDto } from './dto/update-donation.dto.js';
 
+type DonationStatus =
+  | 'RECEIVED'
+  | 'PENDING'
+  | 'CANCELLED'
+  | 'REFUNDED';
+
+type PaymentMethod =
+  | 'CASH'
+  | 'CHEQUE'
+  | 'CREDIT_CARD'
+  | 'DEBIT_CARD'
+  | 'BANK_TRANSFER'
+  | 'ONLINE'
+  | 'OTHER';
+
 @Injectable()
 export class DonationsService {
+  async findAll(filters: {
+    donorId?: string;
+    status?: string;
+    paymentMethod?: string;
+  }) {
+    let query = db.orm.public.Donation;
 
-    async findAll() {
-  return db.orm.public.Donation.all();
-}
+    if (filters.donorId) {
+      query = query.where({
+        donorId: Number(filters.donorId),
+      });
+    }
 
- async findOne(id: number) {
+    if (filters.status) {
+      query = query.where({
+        status: filters.status as DonationStatus,
+      });
+    }
+
+    if (filters.paymentMethod) {
+      query = query.where({
+        paymentMethod: filters.paymentMethod as PaymentMethod,
+      });
+    }
+
+    return query.all();
+  }
+
+  async findOne(id: number) {
     const donation = await db.orm.public.Donation
       .where({ id })
       .first();
@@ -29,16 +67,13 @@ export class DonationsService {
     };
   }
 
-
   async update(id: number, updateDonationDto: UpdateDonationDto) {
-  return db.orm.public.Donation
-    .where({ id })
-    .update(updateDonationDto);
-}
+    return db.orm.public.Donation
+      .where({ id })
+      .update(updateDonationDto);
+  }
 
-    async create(createDonationDto: CreateDonationDto) {
-  return db.orm.public.Donation.create(createDonationDto);
-}
-
-
+  async create(createDonationDto: CreateDonationDto) {
+    return db.orm.public.Donation.create(createDonationDto);
+  }
 }

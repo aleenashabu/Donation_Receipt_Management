@@ -1,4 +1,4 @@
-import { Body, Controller, Post , Get , Param ,Patch } from '@nestjs/common';
+import { Body, Controller, Post , Get , Param ,Patch , Query} from '@nestjs/common';
 import { CreateDonationDto } from './dto/create-donation.dto.js';
 import { DonationsService } from './donations.service.js';
 import { UpdateDonationDto } from './dto/update-donation.dto.js';
@@ -7,12 +7,20 @@ import { UpdateDonationDto } from './dto/update-donation.dto.js';
 export class DonationsController {
   constructor(private readonly donationsService: DonationsService) {}
 
-
   @Get()
-async findAll() {
-  return this.donationsService.findAll();
-}
+  async findAll(
+    @Query('donorId') donorId?: string,
+    @Query('status') status?: string,
+    @Query('paymentMethod') paymentMethod?: string,
+  ) {
+    return this.donationsService.findAll({
+      donorId,
+      status,
+      paymentMethod,
+    });
+  }
 
+ 
 @Get(':id')
 async findOne(@Param('id') id: string) {
   return this.donationsService.findOne(Number(id));

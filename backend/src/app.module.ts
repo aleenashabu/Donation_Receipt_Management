@@ -5,6 +5,7 @@ import { AppService } from './app.service.js';
 import { AuthModule } from './auth/auth.module.js';
 import { DonorsModule } from './donors/donors.module.js';
 import { DonationsModule } from './donations/donations.module.js';
+import { DashboardModule } from './dashboard/dashboard.module.js';
 
 @Module({
   imports: [
@@ -14,6 +15,7 @@ import { DonationsModule } from './donations/donations.module.js';
     AuthModule,
     DonorsModule,
     DonationsModule,
+    DashboardModule,
   ],
   controllers: [AppController],
   providers: [AppService],
