@@ -1,4 +1,5 @@
 import { useEffect, useState } from "react";
+import DonorViewModal from "./DonorViewModal";
 
 type Donor = {
   id: number;
@@ -26,6 +27,7 @@ function Donors({
   const [donors, setDonors] = useState<Donor[]>([]);
   const [loading, setLoading] = useState(true);
   const [search, setSearch] = useState("");
+  const [selectedDonor, setSelectedDonor] = useState<Donor | null>(null);
 
   const loadDonors = () => {
   fetch("http://localhost:3000/donors")
@@ -87,6 +89,8 @@ useEffect(() => {
           <span>EMAIL</span>
           <span>PHONE</span>
           <span>STATUS</span>
+          <span>DONATIONS</span>
+          <span>ACTIONS</span>
         </div>
 
         {loading ? (
@@ -115,6 +119,15 @@ useEffect(() => {
       {donor.isActive ? "Active" : "Inactive"}
     </span>
   </span>
+  <span>
+    
+  </span>
+  
+  <div className="donor-actions">
+    <button className="view-donor-button" onClick={() => setSelectedDonor(donor)}>
+      View
+    </button>
+  
 
   <button
     className="edit-donor-button"
@@ -147,13 +160,18 @@ useEffect(() => {
 >
   Deactivate
 </button>
-
+</div>
 </div>
           ))
         )}
 
       </div>
-
+       {selectedDonor && (
+        <DonorViewModal
+          donor={selectedDonor}
+          onClose={() => setSelectedDonor(null)}
+        />
+      )}
     </div>
   );
 }

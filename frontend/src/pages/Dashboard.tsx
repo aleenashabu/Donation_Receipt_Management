@@ -2,6 +2,7 @@ import { useState } from "react";
 import Donors from "./Donors";
 import AddDonor from "./AddDonor";
 import EditDonor from "./EditDonor";
+import Donations from "./Donations";
 
 type Donor = {
   id: number;
@@ -48,7 +49,7 @@ function Dashboard({ onLogout }: { onLogout: () => void }) {
             👥 Donors
           </div>
 
-          <div className="menu-item">
+          <div className={`menu-item ${currentPage === "donations" ? "active" : ""}`} onClick={() => setCurrentPage("donations")}>
             💰 Donations
           </div>
 
@@ -217,6 +218,12 @@ function Dashboard({ onLogout }: { onLogout: () => void }) {
       onCancel={() => setCurrentPage("donors")}
       onUpdate={() => setCurrentPage("donors")}
     />
+  </div>
+)}
+
+{currentPage === "donations" && (
+  <div className="dashboard-content">
+    <Donations />
   </div>
 )}
 
