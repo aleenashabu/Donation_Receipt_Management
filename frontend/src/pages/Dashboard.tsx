@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState,useEffect } from "react";
 import Donors from "./Donors";
 import AddDonor from "./AddDonor";
 import EditDonor from "./EditDonor";
@@ -21,6 +21,42 @@ type Donor = {
 function Dashboard({ onLogout }: { onLogout: () => void }) {
   const [currentPage, setCurrentPage] = useState("dashboard");
   const [selectedDonor, setSelectedDonor] = useState<Donor | null>(null);
+  const [dashboardData, setDashboardData] = useState({
+  totalDonations: "0.00",
+  donationCount: 0,
+  currentMonthTotal: "0.00",
+});
+
+const [loading, setLoading] = useState(true);
+const [monthlySummary, setMonthlySummary] = useState<
+  {
+    month: string;
+    donationCount: number;
+    totalAmount: string;
+  }[]
+>([]);
+
+useEffect(() => {
+  fetch("http://localhost:3000/dashboard")
+    .then((response) => response.json())
+    .then((data) => {
+      setDashboardData(data);
+      setLoading(false);
+    })
+    .catch((error) => {
+      console.error("Error loading dashboard:", error);
+      setLoading(false);
+    });
+
+  fetch("http://localhost:3000/dashboard/monthly-summary")
+    .then((response) => response.json())
+    .then((data) => {
+      setMonthlySummary(data);
+    })
+    .catch((error) => {
+      console.error("Error loading monthly summary:", error);
+    });
+}, []);
 
   return (
     <div className="dashboard-page">
@@ -86,81 +122,82 @@ function Dashboard({ onLogout }: { onLogout: () => void }) {
 
 
           {/* Summary Cards */}
-          <div className="summary-cards">
+<div className="summary-cards">
 
-            <div className="summary-card">
-              <p>Total received</p>
-              <h2>$0.00</h2>
-            </div>
+  <div className="summary-card">
+    <p>Total received</p>
+    <h2>
+      {loading
+        ? "Loading..."
+        : `₹${dashboardData.totalDonations}`}
+    </h2>
+  </div>
 
-            <div className="summary-card">
-              <p>Total donations</p>
-              <h2>0</h2>
-            </div>
+  <div className="summary-card">
+    <p>Total donations</p>
+    <h2>
+      {loading
+        ? "Loading..."
+        : dashboardData.donationCount}
+    </h2>
+  </div>
 
-            <div className="summary-card">
-              <p>Active donors</p>
-              <h2>0</h2>
-            </div>
+  <div className="summary-card">
+    <p>This month</p>
+    <h2>
+      {loading
+        ? "Loading..."
+        : `₹${dashboardData.currentMonthTotal}`}
+    </h2>
+  </div>
 
-            <div className="summary-card">
-              <p>Pending</p>
-              <h2>0</h2>
-            </div>
+  <div className="summary-card">
+    <p>Active donors</p>
+    <h2>0</h2>
+  </div>
 
-          </div>
+</div>
 
 
           {/* Bottom Sections */}
-          <div className="dashboard-sections">
+{/* Donations by Month */}
+<div className="dashboard-box monthly-summary-box">
 
-            <div className="dashboard-box">
+  <h2>Donations by Month</h2>
 
-              <h2>Donation status</h2>
+  {monthlySummary.length === 0 ? (
+    <p className="no-donations">
+      No monthly donation data available.
+    </p>
+  ) : (
+    <div className="monthly-table">
 
-              <div className="status-row">
-                <span className="status received">RECEIVED</span>
-                <strong>0</strong>
-              </div>
+      <div className="monthly-table-header">
+        <span>MONTH</span>
+        <span>DONATION COUNT</span>
+        <span>TOTAL AMOUNT</span>
+      </div>
 
-              <div className="status-row">
-                <span className="status pending">PENDING</span>
-                <strong>0</strong>
-              </div>
+      {monthlySummary.map((item) => (
+        <div
+          className="monthly-table-row"
+          key={item.month}
+        >
+          <span>
+            {new Date(`${item.month}-01`).toLocaleDateString("en-US", {
+              month: "long",
+              year: "numeric",
+            })}
+          </span>
+          <span>{item.donationCount}</span>
+          <span>₹{item.totalAmount}</span>
+        </div>
+      ))}
 
-              <div className="status-row">
-                <span className="status cancelled">CANCELLED</span>
-                <strong>0</strong>
-              </div>
+    </div>
+  )}
 
-              <div className="status-row">
-                <span className="status refunded">REFUNDED</span>
-                <strong>0</strong>
-              </div>
-
-            </div>
-
-
-            <div className="dashboard-box">
-
-              <div className="recent-header">
-                <h2>Recent donations</h2>
-                <button>View all</button>
-              </div>
-
-              <div className="donation-header">
-                <span>DONOR</span>
-                <span>AMOUNT</span>
-                <span>STATUS</span>
-              </div>
-
-              <p className="no-donations">
-                No donations yet
-              </p>
-
-            </div>
-
-          </div>
+</div>
 
         </div>
       )}

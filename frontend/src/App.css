@@ -705,3 +705,68 @@
   gap: 8px;
   align-items: center;
 }
+
+/* Monthly Summary */
+
+.monthly-summary-box {
+  width: 100%;
+  box-sizing: border-box;
+}
+
+.monthly-summary-box h2 {
+  margin-bottom: 20px;
+}
+
+.monthly-table {
+  width: 100%;
+  overflow-x: auto;
+}
+
+.monthly-table-header,
+.monthly-table-row {
+  display: grid;
+  grid-template-columns: 1.5fr 1fr 1fr;
+  gap: 20px;
+  align-items: center;
+  padding: 16px 20px;
+}
+
+.monthly-table-header {
+  background-color: #f8fafc;
+  color: #64748b;
+  font-size: 13px;
+  font-weight: bold;
+  border-bottom: 1px solid #e2e8f0;
+}
+
+.monthly-table-row {
+  color: #334155;
+  font-size: 15px;
+  border-bottom: 1px solid #e2e8f0;
+}
+
+.monthly-table-row:last-child {
+  border-bottom: none;
+}
+
+.monthly-table-row span:nth-child(2) {
+  text-align: center;
+}
+
+.monthly-table-row span:nth-child(3) {
+  text-align: right;
+  font-weight: 600;
+}
+
+.no-donations {
+  padding: 25px 0;
+  color: #64748b;
+}
+
+.monthly-table-header span:nth-child(2) {
+  text-align: center;
+}
+
+.monthly-table-header span:nth-child(3) {
+  text-align: right;
+}
