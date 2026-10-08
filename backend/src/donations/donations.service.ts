@@ -24,6 +24,8 @@ export class DonationsService {
     donorId?: string;
     status?: string;
     paymentMethod?: string;
+    from?: string;
+    to?: string;
   }) {
     let query = db.orm.public.Donation;
 
@@ -43,6 +45,18 @@ export class DonationsService {
       query = query.where({
         paymentMethod: filters.paymentMethod as PaymentMethod,
       });
+    }
+
+    if (filters.from) {
+      query = query.where((donation) =>
+        donation.donationDate.gte(filters.from!),
+      );
+    }
+
+    if (filters.to) {
+      query = query.where((donation) =>
+        donation.donationDate.lte(filters.to!),
+      );
     }
 
     return query.all();

@@ -12,11 +12,15 @@ export class DonationsController {
     @Query('donorId') donorId?: string,
     @Query('status') status?: string,
     @Query('paymentMethod') paymentMethod?: string,
+    @Query('from') from?: string,
+    @Query('to') to?: string,
   ) {
     return this.donationsService.findAll({
       donorId,
       status,
       paymentMethod,
+      from,
+      to,
     });
   }
 
