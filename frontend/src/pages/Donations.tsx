@@ -34,6 +34,12 @@ function Donations() {
   const [referenceNumber, setReferenceNumber] = useState("");
   const [purpose, setPurpose] = useState("");
   const [notes, setNotes] = useState("");
+  const [filterDonorId, setFilterDonorId] = useState("");
+  const [filterFromDate, setFilterFromDate] = useState("");
+  const [filterToDate, setFilterToDate] = useState("");
+  const [filterStatus, setFilterStatus] = useState("");
+  const [filterPaymentMethod, setFilterPaymentMethod] = useState("");
+
 
   // Load donors
   useEffect(() => {
@@ -49,23 +55,51 @@ function Donations() {
 
   // Load donations
   const loadDonations = () => {
-    setLoadingDonations(true);
+  setLoadingDonations(true);
 
-    fetch("http://localhost:3000/donations")
-      .then((response) => response.json())
-      .then((data) => {
-        setDonations(data);
-        setLoadingDonations(false);
-      })
-      .catch((error) => {
-        console.error("Error loading donations:", error);
-        setLoadingDonations(false);
-      });
-  };
+  const params = new URLSearchParams();
+
+  if (filterDonorId) {
+    params.append("donorId", filterDonorId);
+  }
+
+  if (filterFromDate) {
+    params.append("from", filterFromDate);
+  }
+
+  if (filterToDate) {
+    params.append("to", filterToDate);
+  }
+
+  if (filterStatus) {
+    params.append("status", filterStatus);
+  }
+
+  if (filterPaymentMethod) {
+    params.append("paymentMethod", filterPaymentMethod);
+  }
+
+  fetch(`http://localhost:3000/donations?${params.toString()}`)
+    .then((response) => response.json())
+    .then((data) => {
+      setDonations(data);
+      setLoadingDonations(false);
+    })
+    .catch((error) => {
+      console.error("Error loading donations:", error);
+      setLoadingDonations(false);
+    });
+};
 
   useEffect(() => {
-    loadDonations();
-  }, []);
+  loadDonations();
+}, [
+  filterDonorId,
+  filterFromDate,
+  filterToDate,
+  filterStatus,
+  filterPaymentMethod,
+]);
 
   // Save donation
   const handleSubmit = async () => {
@@ -330,6 +364,69 @@ const response = await fetch(url, {
       <div className="donations-box">
 
         <h2>Recent Donations</h2>
+
+        <div className="donation-filters">
+
+        {/* Donor Filter */}
+        <select
+          value={filterDonorId}
+          onChange={(e) => setFilterDonorId(e.target.value)}
+        >
+          <option value="">All donors</option>
+
+          {donors.map((donor) => (
+            <option key={donor.id} value={donor.id}>
+              {donor.firstName} {donor.lastName}
+            </option>
+          ))}
+        </select>
+
+
+        {/* From Date */}
+        <input
+          type="date"
+          value={filterFromDate}
+          onChange={(e) => setFilterFromDate(e.target.value)}
+        />
+
+
+        {/* To Date */}
+        <input
+          type="date"
+          value={filterToDate}
+          onChange={(e) => setFilterToDate(e.target.value)}
+        />
+
+
+        {/* Status */}
+        <select
+          value={filterStatus}
+          onChange={(e) => setFilterStatus(e.target.value)}
+        >
+          <option value="">All statuses</option>
+          <option value="RECEIVED">Received</option>
+          <option value="PENDING">Pending</option>
+          <option value="CANCELLED">Cancelled</option>
+          <option value="REFUNDED">Refunded</option>
+        </select>
+
+
+        {/* Payment Method */}
+        <select
+          value={filterPaymentMethod}
+          onChange={(e) => setFilterPaymentMethod(e.target.value)}
+        >
+          <option value="">All payment methods</option>
+          <option value="CASH">Cash</option>
+          <option value="CHEQUE">Cheque</option>
+          <option value="CREDIT_CARD">Credit Card</option>
+          <option value="DEBIT_CARD">Debit Card</option>
+          <option value="BANK_TRANSFER">Bank Transfer</option>
+          <option value="ONLINE">Online</option>
+          <option value="OTHER">Other</option>
+        </select>
+
+      </div>
 
         <div className="donation-list-header">
           <span>DONOR</span>
