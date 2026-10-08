@@ -106,7 +106,7 @@ function DonorViewModal({
 
             <span> · </span>
 
-            <strong>Received:</strong> ₹{totalReceived.toFixed(2)}
+            <strong>Received:</strong> ${totalReceived.toFixed(2)}
           </div>
         </div>
 
@@ -139,7 +139,7 @@ function DonorViewModal({
                 <span>{donation.donationDate}</span>
 
                 <span>
-                  ₹{Number(donation.amount).toFixed(2)}
+                  ${Number(donation.amount).toFixed(2)}
                 </span>
 
                 <span>{getFundName(donation.fundId)}</span>

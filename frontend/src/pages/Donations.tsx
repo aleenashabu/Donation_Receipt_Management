@@ -26,6 +26,7 @@ function Donations() {
 
   const [showForm, setShowForm] = useState(false);
   const [selectedDonationId, setSelectedDonationId] = useState<number | null>(null);
+  const [editingDonationId, setEditingDonationId] = useState<number | null>(null);
   const [donorId, setDonorId] = useState("");
   const [donationDate, setDonationDate] = useState("");
   const [amount, setAmount] = useState("");
@@ -33,6 +34,12 @@ function Donations() {
   const [referenceNumber, setReferenceNumber] = useState("");
   const [purpose, setPurpose] = useState("");
   const [notes, setNotes] = useState("");
+  const [filterDonorId, setFilterDonorId] = useState("");
+  const [filterFromDate, setFilterFromDate] = useState("");
+  const [filterToDate, setFilterToDate] = useState("");
+  const [filterStatus, setFilterStatus] = useState("");
+  const [filterPaymentMethod, setFilterPaymentMethod] = useState("");
+
 
   // Load donors
   useEffect(() => {
@@ -48,56 +55,88 @@ function Donations() {
 
   // Load donations
   const loadDonations = () => {
-    setLoadingDonations(true);
+  setLoadingDonations(true);
 
-    fetch("http://localhost:3000/donations")
-      .then((response) => response.json())
-      .then((data) => {
-        setDonations(data);
-        setLoadingDonations(false);
-      })
-      .catch((error) => {
-        console.error("Error loading donations:", error);
-        setLoadingDonations(false);
-      });
-  };
+  const params = new URLSearchParams();
+
+  if (filterDonorId) {
+    params.append("donorId", filterDonorId);
+  }
+
+  if (filterFromDate) {
+    params.append("from", filterFromDate);
+  }
+
+  if (filterToDate) {
+    params.append("to", filterToDate);
+  }
+
+  if (filterStatus) {
+    params.append("status", filterStatus);
+  }
+
+  if (filterPaymentMethod) {
+    params.append("paymentMethod", filterPaymentMethod);
+  }
+
+  fetch(`http://localhost:3000/donations?${params.toString()}`)
+    .then((response) => response.json())
+    .then((data) => {
+      setDonations(data);
+      setLoadingDonations(false);
+    })
+    .catch((error) => {
+      console.error("Error loading donations:", error);
+      setLoadingDonations(false);
+    });
+};
 
   useEffect(() => {
-    loadDonations();
-  }, []);
+  loadDonations();
+}, [
+  filterDonorId,
+  filterFromDate,
+  filterToDate,
+  filterStatus,
+  filterPaymentMethod,
+]);
 
   // Save donation
   const handleSubmit = async () => {
-    if (
-      !donorId ||
-      !donationDate ||
-      !amount ||
-      !paymentMethod ||
-      !referenceNumber.trim() ||
-      !purpose.trim() ||
-      !notes.trim()
-    ) {
-      alert("Please fill in all fields");
-      return;
-    }
+  const today = new Date();
+  today.setHours(0, 0, 0, 0);
+
+  const selectedDate = new Date(donationDate);
+  selectedDate.setHours(0, 0, 0, 0);
+
+  if (selectedDate > today) {
+    alert("Donation date cannot be a future date");
+    return;
+  }
 
     try {
-      const response = await fetch("http://localhost:3000/donations", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({
-          donorId: Number(donorId),
-          fundId: 1,
-          donationDate: donationDate,
-          amount: amount,
-          paymentMethod: paymentMethod,
-          referenceNumber: referenceNumber.trim(),
-          purpose: purpose.trim(),
-          notes: notes.trim(),
-        }),
-      });
+      const url = editingDonationId
+  ? `http://localhost:3000/donations/${editingDonationId}`
+  : "http://localhost:3000/donations";
+
+const method = editingDonationId ? "PATCH" : "POST";
+
+const response = await fetch(url, {
+  method: method,
+  headers: {
+    "Content-Type": "application/json",
+  },
+  body: JSON.stringify({
+    donorId: Number(donorId),
+    fundId: 1,
+    donationDate: donationDate,
+    amount: amount,
+    paymentMethod: paymentMethod,
+    referenceNumber: referenceNumber.trim(),
+    purpose: purpose.trim(),
+    notes: notes.trim(),
+  }),
+});
 
       const data = await response.json();
 
@@ -106,7 +145,11 @@ function Donations() {
         return;
       }
 
-      alert("Donation saved successfully");
+      alert(
+        editingDonationId
+            ? "Donation updated successfully"
+            : "Donation saved successfully"
+        );
 
       console.log(data);
 
@@ -121,6 +164,7 @@ function Donations() {
 
       // Go back to donation list
       setShowForm(false);
+      setEditingDonationId(null);
 
       // Reload donations so the new donation appears
       loadDonations();
@@ -147,8 +191,12 @@ function Donations() {
       <div className="add-donor-page">
         <div className="add-donor-header">
           <div>
-            <h1>Add Donation</h1>
-            <p>Record a new donation</p>
+            <h1>{editingDonationId ? "Edit Donation" : "Add Donation"}</h1>
+            <p>
+            {editingDonationId
+                ? "Update donation details"
+                : "Record a new donation"}
+            </p>
           </div>
         </div>
 
@@ -181,12 +229,11 @@ function Donations() {
               <label>Donation Date</label>
 
               <input
-                type="date"
-                value={donationDate}
-                onChange={(event) =>
-                  setDonationDate(event.target.value)
-                }
-              />
+              type="date"
+              value={donationDate}
+              max={new Date().toISOString().split("T")[0]}
+              onChange={(e) => setDonationDate(e.target.value)}
+            />
             </div>
 
             <div className="form-group">
@@ -283,10 +330,10 @@ function Donations() {
             </button>
 
             <button
-              className="save-donor-button"
-              onClick={handleSubmit}
+            className="save-donor-button"
+            onClick={handleSubmit}
             >
-              Save Donation
+            {editingDonationId ? "Update Donation" : "Save Donation"}
             </button>
 
           </div>
@@ -318,6 +365,69 @@ function Donations() {
 
         <h2>Recent Donations</h2>
 
+        <div className="donation-filters">
+
+        {/* Donor Filter */}
+        <select
+          value={filterDonorId}
+          onChange={(e) => setFilterDonorId(e.target.value)}
+        >
+          <option value="">All donors</option>
+
+          {donors.map((donor) => (
+            <option key={donor.id} value={donor.id}>
+              {donor.firstName} {donor.lastName}
+            </option>
+          ))}
+        </select>
+
+
+        {/* From Date */}
+        <input
+          type="date"
+          value={filterFromDate}
+          onChange={(e) => setFilterFromDate(e.target.value)}
+        />
+
+
+        {/* To Date */}
+        <input
+          type="date"
+          value={filterToDate}
+          onChange={(e) => setFilterToDate(e.target.value)}
+        />
+
+
+        {/* Status */}
+        <select
+          value={filterStatus}
+          onChange={(e) => setFilterStatus(e.target.value)}
+        >
+          <option value="">All statuses</option>
+          <option value="RECEIVED">Received</option>
+          <option value="PENDING">Pending</option>
+          <option value="CANCELLED">Cancelled</option>
+          <option value="REFUNDED">Refunded</option>
+        </select>
+
+
+        {/* Payment Method */}
+        <select
+          value={filterPaymentMethod}
+          onChange={(e) => setFilterPaymentMethod(e.target.value)}
+        >
+          <option value="">All payment methods</option>
+          <option value="CASH">Cash</option>
+          <option value="CHEQUE">Cheque</option>
+          <option value="CREDIT_CARD">Credit Card</option>
+          <option value="DEBIT_CARD">Debit Card</option>
+          <option value="BANK_TRANSFER">Bank Transfer</option>
+          <option value="ONLINE">Online</option>
+          <option value="OTHER">Other</option>
+        </select>
+
+      </div>
+
         <div className="donation-list-header">
           <span>DONOR</span>
           <span>DATE</span>
@@ -342,7 +452,7 @@ function Donations() {
 
   <span>{donation.donationDate}</span>
 
-  <span>₹{donation.amount}</span>
+  <span>${donation.amount}</span>
 
   <span>{donation.paymentMethod}</span>
 
@@ -356,9 +466,22 @@ function Donations() {
       View
     </button>
 
-    <button className="edit-donor-button">
-      Edit
-    </button>
+    <button
+  className="edit-donor-button"
+  onClick={() => {
+    setEditingDonationId(donation.id);
+    setDonorId(String(donation.donorId));
+    setDonationDate(donation.donationDate);
+    setAmount(donation.amount);
+    setPaymentMethod(donation.paymentMethod);
+    setReferenceNumber(donation.referenceNumber);
+    setPurpose(donation.purpose);
+    setNotes(donation.notes);
+    setShowForm(true);
+  }}
+>
+  Edit
+</button>
   </div>
 </div>
           ))

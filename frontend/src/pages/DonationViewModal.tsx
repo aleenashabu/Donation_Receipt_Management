@@ -122,7 +122,7 @@ function DonationViewModal({
           <div className="donation-detail-row">
             <strong>Amount</strong>
             <span>
-              ₹{Number(donation.amount).toFixed(2)}
+              ${Number(donation.amount).toFixed(2)}
             </span>
           </div>
 
