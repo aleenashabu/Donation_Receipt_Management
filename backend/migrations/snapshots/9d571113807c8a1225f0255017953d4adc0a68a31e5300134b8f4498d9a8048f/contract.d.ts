@@ -34,7 +34,7 @@ import type {
 } from '@prisma/orm-postgres/contract/types';
 
 export type StorageHash =
-  StorageHashBase<'c95e418709ac95650477ab8e0b30e0cfa537554a7f0bf8fe0cb27dcc743ce5b2'>;
+  StorageHashBase<'9d571113807c8a1225f0255017953d4adc0a68a31e5300134b8f4498d9a8048f'>;
 export type ExecutionHash =
   ExecutionHashBase<'7ed0468baadc70327832dd989c7565fcc90eca3ce7ddcc1d85f8c9c0569596cb'>;
 export type ProfileHash =
@@ -289,15 +289,6 @@ export type FieldOutputTypes = {
       readonly name: CodecTypes['pg/text@1']['output'];
       readonly updatedAt: CodecTypes['pg/timestamptz-string@1']['output'];
     };
-    readonly Receipt: {
-      readonly createdById: CodecTypes['pg/int4@1']['output'];
-      readonly donationId: CodecTypes['pg/int4@1']['output'];
-      readonly id: CodecTypes['pg/int4@1']['output'];
-      readonly issuedDate: CodecTypes['pg/timestamptz-string@1']['output'];
-      readonly receiptNumber: CodecTypes['pg/int4@1']['output'];
-      readonly replacedReceiptId: CodecTypes['pg/int4@1']['output'] | null;
-      readonly status: 'ISSUED' | 'VOID' | 'REPLACED';
-    };
     readonly User: {
       readonly createdAt: CodecTypes['pg/timestamptz-string@1']['output'];
       readonly email: CodecTypes['pg/text@1']['output'];
@@ -348,15 +339,6 @@ export type FieldInputTypes = {
       readonly isActive: CodecTypes['pg/bool@1']['input'];
       readonly name: CodecTypes['pg/text@1']['input'];
       readonly updatedAt: CodecTypes['pg/timestamptz-string@1']['input'];
-    };
-    readonly Receipt: {
-      readonly createdById: CodecTypes['pg/int4@1']['input'];
-      readonly donationId: CodecTypes['pg/int4@1']['input'];
-      readonly id: CodecTypes['pg/int4@1']['input'];
-      readonly issuedDate: CodecTypes['pg/timestamptz-string@1']['input'];
-      readonly receiptNumber: CodecTypes['pg/int4@1']['input'];
-      readonly replacedReceiptId: CodecTypes['pg/int4@1']['input'] | null;
-      readonly status: 'ISSUED' | 'VOID' | 'REPLACED';
     };
     readonly User: {
       readonly createdAt: CodecTypes['pg/timestamptz-string@1']['input'];
@@ -409,15 +391,6 @@ export type StorageColumnTypes = {
       readonly name: CodecTypes['pg/text@1']['output'];
       readonly updatedAt: CodecTypes['pg/timestamptz-string@1']['output'];
     };
-    readonly Receipt: {
-      readonly createdById: CodecTypes['pg/int4@1']['output'];
-      readonly donationId: CodecTypes['pg/int4@1']['output'];
-      readonly id: CodecTypes['pg/int4@1']['output'];
-      readonly issuedDate: CodecTypes['pg/timestamptz-string@1']['output'];
-      readonly receiptNumber: CodecTypes['pg/int4@1']['output'];
-      readonly replacedReceiptId: CodecTypes['pg/int4@1']['output'] | null;
-      readonly status: 'ISSUED' | 'VOID' | 'REPLACED';
-    };
     readonly User: {
       readonly createdAt: CodecTypes['pg/timestamptz-string@1']['output'];
       readonly email: CodecTypes['pg/text@1']['output'];
@@ -469,15 +442,6 @@ export type StorageColumnInputTypes = {
       readonly name: CodecTypes['pg/text@1']['input'];
       readonly updatedAt: CodecTypes['pg/timestamptz-string@1']['input'];
     };
-    readonly Receipt: {
-      readonly createdById: CodecTypes['pg/int4@1']['input'];
-      readonly donationId: CodecTypes['pg/int4@1']['input'];
-      readonly id: CodecTypes['pg/int4@1']['input'];
-      readonly issuedDate: CodecTypes['pg/timestamptz-string@1']['input'];
-      readonly receiptNumber: CodecTypes['pg/int4@1']['input'];
-      readonly replacedReceiptId: CodecTypes['pg/int4@1']['input'] | null;
-      readonly status: 'ISSUED' | 'VOID' | 'REPLACED';
-    };
     readonly User: {
       readonly createdAt: CodecTypes['pg/timestamptz-string@1']['input'];
       readonly email: CodecTypes['pg/text@1']['input'];
@@ -507,8 +471,7 @@ export namespace Models {
     updatedAt: CodecTypes['pg/timestamptz-string@1']['output'];
     donor: public_Donor;
     fund: public_Fund;
-    receipts: public_Receipt[];
-    readonly [RelationKeys]?: 'donor' | 'fund' | 'receipts';
+    readonly [RelationKeys]?: 'donor' | 'fund';
   };
   export type public_Donor = {
     address: CodecTypes['pg/text@1']['output'];
@@ -537,20 +500,6 @@ export namespace Models {
     donations: public_Donation[];
     readonly [RelationKeys]?: 'donations';
   };
-  export type public_Receipt = {
-    createdById: CodecTypes['pg/int4@1']['output'];
-    donationId: CodecTypes['pg/int4@1']['output'];
-    id: CodecTypes['pg/int4@1']['output'];
-    issuedDate: CodecTypes['pg/timestamptz-string@1']['output'];
-    receiptNumber: CodecTypes['pg/int4@1']['output'];
-    replacedReceiptId: CodecTypes['pg/int4@1']['output'] | null;
-    status: 'ISSUED' | 'VOID' | 'REPLACED';
-    createdBy: public_User;
-    donation: public_Donation;
-    replacedReceipt: public_Receipt | null;
-    replacements: public_Receipt[];
-    readonly [RelationKeys]?: 'createdBy' | 'donation' | 'replacedReceipt' | 'replacements';
-  };
   export type public_User = {
     createdAt: CodecTypes['pg/timestamptz-string@1']['output'];
     email: CodecTypes['pg/text@1']['output'];
@@ -558,8 +507,7 @@ export namespace Models {
     name: CodecTypes['pg/text@1']['output'];
     passwordHash: CodecTypes['pg/text@1']['output'];
     updatedAt: CodecTypes['pg/timestamptz-string@1']['output'];
-    receipts: public_Receipt[];
-    readonly [RelationKeys]?: 'receipts';
+    readonly [RelationKeys]?: never;
   };
 }
 
@@ -568,7 +516,6 @@ export declare const models: {
     Donation: Models.public_Donation;
     Donor: Models.public_Donor;
     Fund: Models.public_Fund;
-    Receipt: Models.public_Receipt;
     User: Models.public_User;
   };
 };
@@ -845,118 +792,6 @@ type ContractBase = Omit<
               indexes: readonly [];
               foreignKeys: readonly [];
             };
-            readonly Receipt: {
-              columns: {
-                readonly createdById: {
-                  readonly nativeType: 'int4';
-                  readonly codecId: 'pg/int4@1';
-                  readonly nullable: false;
-                };
-                readonly donationId: {
-                  readonly nativeType: 'int4';
-                  readonly codecId: 'pg/int4@1';
-                  readonly nullable: false;
-                };
-                readonly id: {
-                  readonly nativeType: 'int4';
-                  readonly codecId: 'pg/int4@1';
-                  readonly nullable: false;
-                  readonly default: {
-                    readonly kind: 'function';
-                    readonly expression: 'autoincrement()';
-                  };
-                };
-                readonly issuedDate: {
-                  readonly nativeType: 'timestamptz';
-                  readonly codecId: 'pg/timestamptz-string@1';
-                  readonly nullable: false;
-                  readonly default: { readonly kind: 'function'; readonly expression: 'now()' };
-                };
-                readonly receiptNumber: {
-                  readonly nativeType: 'int4';
-                  readonly codecId: 'pg/int4@1';
-                  readonly nullable: false;
-                  readonly default: {
-                    readonly kind: 'function';
-                    readonly expression: 'nextval(\'"Receipt_receiptNumber_seq"\'::regclass)';
-                  };
-                };
-                readonly replacedReceiptId: {
-                  readonly nativeType: 'int4';
-                  readonly codecId: 'pg/int4@1';
-                  readonly nullable: true;
-                };
-                readonly status: {
-                  readonly nativeType: 'text';
-                  readonly codecId: 'pg/text@1';
-                  readonly nullable: false;
-                  readonly default: {
-                    readonly kind: 'literal';
-                    readonly value: DefaultLiteralValue<'pg/text@1', 'ISSUED'>;
-                  };
-                };
-              };
-              primaryKey: { readonly columns: readonly ['id'] };
-              uniques: readonly [{ readonly columns: readonly ['receiptNumber'] }];
-              indexes: readonly [
-                {
-                  readonly name: 'Receipt_createdById_idx_8bf640ed';
-                  readonly prefix: 'Receipt_createdById_idx';
-                  readonly columns: readonly ['createdById'];
-                  readonly unique: false;
-                },
-                {
-                  readonly name: 'Receipt_donationId_idx_dea7c586';
-                  readonly prefix: 'Receipt_donationId_idx';
-                  readonly columns: readonly ['donationId'];
-                  readonly unique: false;
-                },
-                {
-                  readonly name: 'Receipt_replacedReceiptId_idx_30889495';
-                  readonly prefix: 'Receipt_replacedReceiptId_idx';
-                  readonly columns: readonly ['replacedReceiptId'];
-                  readonly unique: false;
-                },
-              ];
-              foreignKeys: readonly [
-                {
-                  readonly source: {
-                    readonly namespaceId: 'public' & NamespaceId;
-                    readonly tableName: 'Receipt';
-                    readonly columns: readonly ['donationId'];
-                  };
-                  readonly target: {
-                    readonly namespaceId: 'public' & NamespaceId;
-                    readonly tableName: 'Donation';
-                    readonly columns: readonly ['id'];
-                  };
-                },
-                {
-                  readonly source: {
-                    readonly namespaceId: 'public' & NamespaceId;
-                    readonly tableName: 'Receipt';
-                    readonly columns: readonly ['replacedReceiptId'];
-                  };
-                  readonly target: {
-                    readonly namespaceId: 'public' & NamespaceId;
-                    readonly tableName: 'Receipt';
-                    readonly columns: readonly ['id'];
-                  };
-                },
-                {
-                  readonly source: {
-                    readonly namespaceId: 'public' & NamespaceId;
-                    readonly tableName: 'Receipt';
-                    readonly columns: readonly ['createdById'];
-                  };
-                  readonly target: {
-                    readonly namespaceId: 'public' & NamespaceId;
-                    readonly tableName: 'User';
-                    readonly columns: readonly ['id'];
-                  };
-                },
-              ];
-            };
             readonly User: {
               columns: {
                 readonly createdAt: {
@@ -1018,10 +853,6 @@ type ContractBase = Omit<
                 'OTHER',
               ];
             };
-            readonly ReceiptStatus: {
-              readonly kind: 'valueSet';
-              readonly values: readonly ['ISSUED', 'VOID', 'REPLACED'];
-            };
           };
         };
       };
@@ -1036,7 +867,6 @@ type ContractBase = Omit<
     readonly Donation: { readonly namespace: 'public' & NamespaceId; readonly model: 'Donation' };
     readonly Donor: { readonly namespace: 'public' & NamespaceId; readonly model: 'Donor' };
     readonly Fund: { readonly namespace: 'public' & NamespaceId; readonly model: 'Fund' };
-    readonly Receipt: { readonly namespace: 'public' & NamespaceId; readonly model: 'Receipt' };
     readonly User: { readonly namespace: 'public' & NamespaceId; readonly model: 'User' };
   };
   readonly domain: {
@@ -1127,17 +957,6 @@ type ContractBase = Omit<
                 readonly on: {
                   readonly localFields: readonly ['fundId'];
                   readonly targetFields: readonly ['id'];
-                };
-              };
-              readonly receipts: {
-                readonly to: {
-                  readonly namespace: 'public' & NamespaceId;
-                  readonly model: 'Receipt';
-                };
-                readonly cardinality: '1:N';
-                readonly on: {
-                  readonly localFields: readonly ['id'];
-                  readonly targetFields: readonly ['donationId'];
                 };
               };
             };
@@ -1314,100 +1133,6 @@ type ContractBase = Omit<
               };
             };
           };
-          readonly Receipt: {
-            readonly fields: {
-              readonly createdById: {
-                readonly nullable: false;
-                readonly type: { readonly kind: 'scalar'; readonly codecId: 'pg/int4@1' };
-              };
-              readonly donationId: {
-                readonly nullable: false;
-                readonly type: { readonly kind: 'scalar'; readonly codecId: 'pg/int4@1' };
-              };
-              readonly id: {
-                readonly nullable: false;
-                readonly type: { readonly kind: 'scalar'; readonly codecId: 'pg/int4@1' };
-              };
-              readonly issuedDate: {
-                readonly nullable: false;
-                readonly type: {
-                  readonly kind: 'scalar';
-                  readonly codecId: 'pg/timestamptz-string@1';
-                };
-              };
-              readonly receiptNumber: {
-                readonly nullable: false;
-                readonly type: { readonly kind: 'scalar'; readonly codecId: 'pg/int4@1' };
-              };
-              readonly replacedReceiptId: {
-                readonly nullable: true;
-                readonly type: { readonly kind: 'scalar'; readonly codecId: 'pg/int4@1' };
-              };
-              readonly status: {
-                readonly nullable: false;
-                readonly type: { readonly kind: 'scalar'; readonly codecId: 'pg/text@1' };
-              };
-            };
-            readonly relations: {
-              readonly createdBy: {
-                readonly to: { readonly namespace: 'public' & NamespaceId; readonly model: 'User' };
-                readonly cardinality: 'N:1';
-                readonly nullable: false;
-                readonly on: {
-                  readonly localFields: readonly ['createdById'];
-                  readonly targetFields: readonly ['id'];
-                };
-              };
-              readonly donation: {
-                readonly to: {
-                  readonly namespace: 'public' & NamespaceId;
-                  readonly model: 'Donation';
-                };
-                readonly cardinality: 'N:1';
-                readonly nullable: false;
-                readonly on: {
-                  readonly localFields: readonly ['donationId'];
-                  readonly targetFields: readonly ['id'];
-                };
-              };
-              readonly replacedReceipt: {
-                readonly to: {
-                  readonly namespace: 'public' & NamespaceId;
-                  readonly model: 'Receipt';
-                };
-                readonly cardinality: 'N:1';
-                readonly nullable: true;
-                readonly on: {
-                  readonly localFields: readonly ['replacedReceiptId'];
-                  readonly targetFields: readonly ['id'];
-                };
-              };
-              readonly replacements: {
-                readonly to: {
-                  readonly namespace: 'public' & NamespaceId;
-                  readonly model: 'Receipt';
-                };
-                readonly cardinality: '1:N';
-                readonly on: {
-                  readonly localFields: readonly ['id'];
-                  readonly targetFields: readonly ['replacedReceiptId'];
-                };
-              };
-            };
-            readonly storage: {
-              readonly table: 'Receipt';
-              readonly namespaceId: 'public';
-              readonly fields: {
-                readonly createdById: { readonly column: 'createdById' };
-                readonly donationId: { readonly column: 'donationId' };
-                readonly id: { readonly column: 'id' };
-                readonly issuedDate: { readonly column: 'issuedDate' };
-                readonly receiptNumber: { readonly column: 'receiptNumber' };
-                readonly replacedReceiptId: { readonly column: 'replacedReceiptId' };
-                readonly status: { readonly column: 'status' };
-              };
-            };
-          };
           readonly User: {
             readonly fields: {
               readonly createdAt: {
@@ -1441,19 +1166,7 @@ type ContractBase = Omit<
                 };
               };
             };
-            readonly relations: {
-              readonly receipts: {
-                readonly to: {
-                  readonly namespace: 'public' & NamespaceId;
-                  readonly model: 'Receipt';
-                };
-                readonly cardinality: '1:N';
-                readonly on: {
-                  readonly localFields: readonly ['id'];
-                  readonly targetFields: readonly ['createdById'];
-                };
-              };
-            };
+            readonly relations: Record<string, never>;
             readonly storage: {
               readonly table: 'User';
               readonly namespaceId: 'public';
@@ -1488,14 +1201,6 @@ type ContractBase = Omit<
               { readonly name: 'BANK_TRANSFER'; readonly value: 'BANK_TRANSFER' },
               { readonly name: 'ONLINE'; readonly value: 'ONLINE' },
               { readonly name: 'OTHER'; readonly value: 'OTHER' },
-            ];
-          };
-          readonly ReceiptStatus: {
-            readonly codecId: 'pg/text@1';
-            readonly members: readonly [
-              { readonly name: 'ISSUED'; readonly value: 'ISSUED' },
-              { readonly name: 'VOID'; readonly value: 'VOID' },
-              { readonly name: 'REPLACED'; readonly value: 'REPLACED' },
             ];
           };
         };

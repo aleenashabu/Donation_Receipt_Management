@@ -16,6 +16,10 @@
       "model": "Fund",
       "namespace": "public"
     },
+    "Receipt": {
+      "model": "Receipt",
+      "namespace": "public"
+    },
     "User": {
       "model": "User",
       "namespace": "public"
@@ -76,6 +80,23 @@
               {
                 "name": "OTHER",
                 "value": "OTHER"
+              }
+            ]
+          },
+          "ReceiptStatus": {
+            "codecId": "pg/text@1",
+            "members": [
+              {
+                "name": "ISSUED",
+                "value": "ISSUED"
+              },
+              {
+                "name": "VOID",
+                "value": "VOID"
+              },
+              {
+                "name": "REPLACED",
+                "value": "REPLACED"
               }
             ]
           }
@@ -217,6 +238,21 @@
                 },
                 "to": {
                   "model": "Fund",
+                  "namespace": "public"
+                }
+              },
+              "receipts": {
+                "cardinality": "1:N",
+                "on": {
+                  "localFields": [
+                    "id"
+                  ],
+                  "targetFields": [
+                    "donationId"
+                  ]
+                },
+                "to": {
+                  "model": "Receipt",
                   "namespace": "public"
                 }
               }
@@ -511,6 +547,157 @@
               "table": "Fund"
             }
           },
+          "Receipt": {
+            "fields": {
+              "createdById": {
+                "nullable": false,
+                "type": {
+                  "codecId": "pg/int4@1",
+                  "kind": "scalar"
+                }
+              },
+              "donationId": {
+                "nullable": false,
+                "type": {
+                  "codecId": "pg/int4@1",
+                  "kind": "scalar"
+                }
+              },
+              "id": {
+                "nullable": false,
+                "type": {
+                  "codecId": "pg/int4@1",
+                  "kind": "scalar"
+                }
+              },
+              "issuedDate": {
+                "nullable": false,
+                "type": {
+                  "codecId": "pg/timestamptz-string@1",
+                  "kind": "scalar"
+                }
+              },
+              "receiptNumber": {
+                "nullable": false,
+                "type": {
+                  "codecId": "pg/int4@1",
+                  "kind": "scalar"
+                }
+              },
+              "replacedReceiptId": {
+                "nullable": true,
+                "type": {
+                  "codecId": "pg/int4@1",
+                  "kind": "scalar"
+                }
+              },
+              "status": {
+                "nullable": false,
+                "type": {
+                  "codecId": "pg/text@1",
+                  "kind": "scalar"
+                },
+                "valueSet": {
+                  "entityKind": "enum",
+                  "entityName": "ReceiptStatus",
+                  "namespaceId": "public",
+                  "plane": "domain"
+                }
+              }
+            },
+            "relations": {
+              "createdBy": {
+                "cardinality": "N:1",
+                "nullable": false,
+                "on": {
+                  "localFields": [
+                    "createdById"
+                  ],
+                  "targetFields": [
+                    "id"
+                  ]
+                },
+                "to": {
+                  "model": "User",
+                  "namespace": "public"
+                }
+              },
+              "donation": {
+                "cardinality": "N:1",
+                "nullable": false,
+                "on": {
+                  "localFields": [
+                    "donationId"
+                  ],
+                  "targetFields": [
+                    "id"
+                  ]
+                },
+                "to": {
+                  "model": "Donation",
+                  "namespace": "public"
+                }
+              },
+              "replacedReceipt": {
+                "cardinality": "N:1",
+                "nullable": true,
+                "on": {
+                  "localFields": [
+                    "replacedReceiptId"
+                  ],
+                  "targetFields": [
+                    "id"
+                  ]
+                },
+                "to": {
+                  "model": "Receipt",
+                  "namespace": "public"
+                }
+              },
+              "replacements": {
+                "cardinality": "1:N",
+                "on": {
+                  "localFields": [
+                    "id"
+                  ],
+                  "targetFields": [
+                    "replacedReceiptId"
+                  ]
+                },
+                "to": {
+                  "model": "Receipt",
+                  "namespace": "public"
+                }
+              }
+            },
+            "storage": {
+              "fields": {
+                "createdById": {
+                  "column": "createdById"
+                },
+                "donationId": {
+                  "column": "donationId"
+                },
+                "id": {
+                  "column": "id"
+                },
+                "issuedDate": {
+                  "column": "issuedDate"
+                },
+                "receiptNumber": {
+                  "column": "receiptNumber"
+                },
+                "replacedReceiptId": {
+                  "column": "replacedReceiptId"
+                },
+                "status": {
+                  "column": "status"
+                }
+              },
+              "namespaceId": "public",
+              "table": "Receipt"
+            }
+          },
           "User": {
             "fields": {
               "createdAt": {
@@ -556,7 +743,23 @@
                 }
               }
             },
-            "relations": {},
+            "relations": {
+              "receipts": {
+                "cardinality": "1:N",
+                "on": {
+                  "localFields": [
+                    "id"
+                  ],
+                  "targetFields": [
+                    "createdById"
+                  ]
+                },
+                "to": {
+                  "model": "Receipt",
+                  "namespace": "public"
+                }
+              }
+            },
             "storage": {
               "fields": {
                 "createdAt": {
@@ -913,6 +1116,165 @@
                 }
               ]
             },
+            "Receipt": {
+              "checks": [
+                {
+                  "expression": "\"status\" IN ('ISSUED', 'VOID', 'REPLACED')",
+                  "name": "Receipt_status_check_31e59db4",
+                  "prefix": "Receipt_status_check"
+                }
+              ],
+              "columns": {
+                "createdById": {
+                  "codecId": "pg/int4@1",
+                  "nativeType": "int4",
+                  "nullable": false
+                },
+                "donationId": {
+                  "codecId": "pg/int4@1",
+                  "nativeType": "int4",
+                  "nullable": false
+                },
+                "id": {
+                  "codecId": "pg/int4@1",
+                  "default": {
+                    "expression": "autoincrement()",
+                    "kind": "function"
+                  },
+                  "nativeType": "int4",
+                  "nullable": false
+                },
+                "issuedDate": {
+                  "codecId": "pg/timestamptz-string@1",
+                  "default": {
+                    "expression": "now()",
+                    "kind": "function"
+                  },
+                  "nativeType": "timestamptz",
+                  "nullable": false
+                },
+                "receiptNumber": {
+                  "codecId": "pg/int4@1",
+                  "default": {
+                    "expression": "nextval('\"Receipt_receiptNumber_seq\"'::regclass)",
+                    "kind": "function"
+                  },
+                  "nativeType": "int4",
+                  "nullable": false
+                },
+                "replacedReceiptId": {
+                  "codecId": "pg/int4@1",
+                  "nativeType": "int4",
+                  "nullable": true
+                },
+                "status": {
+                  "codecId": "pg/text@1",
+                  "default": {
+                    "kind": "literal",
+                    "value": "ISSUED"
+                  },
+                  "nativeType": "text",
+                  "nullable": false,
+                  "valueSet": {
+                    "entityKind": "valueSet",
+                    "entityName": "ReceiptStatus",
+                    "namespaceId": "public",
+                    "plane": "storage"
+                  }
+                }
+              },
+              "foreignKeys": [
+                {
+                  "onDelete": "restrict",
+                  "source": {
+                    "columns": [
+                      "donationId"
+                    ],
+                    "namespaceId": "public",
+                    "tableName": "Receipt"
+                  },
+                  "target": {
+                    "columns": [
+                      "id"
+                    ],
+                    "namespaceId": "public",
+                    "tableName": "Donation"
+                  }
+                },
+                {
+                  "onDelete": "restrict",
+                  "source": {
+                    "columns": [
+                      "replacedReceiptId"
+                    ],
+                    "namespaceId": "public",
+                    "tableName": "Receipt"
+                  },
+                  "target": {
+                    "columns": [
+                      "id"
+                    ],
+                    "namespaceId": "public",
+                    "tableName": "Receipt"
+                  }
+                },
+                {
+                  "onDelete": "restrict",
+                  "source": {
+                    "columns": [
+                      "createdById"
+                    ],
+                    "namespaceId": "public",
+                    "tableName": "Receipt"
+                  },
+                  "target": {
+                    "columns": [
+                      "id"
+                    ],
+                    "namespaceId": "public",
+                    "tableName": "User"
+                  }
+                }
+              ],
+              "indexes": [
+                {
+                  "columns": [
+                    "createdById"
+                  ],
+                  "name": "Receipt_createdById_idx_8bf640ed",
+                  "prefix": "Receipt_createdById_idx",
+                  "unique": false
+                },
+                {
+                  "columns": [
+                    "donationId"
+                  ],
+                  "name": "Receipt_donationId_idx_dea7c586",
+                  "prefix": "Receipt_donationId_idx",
+                  "unique": false
+                },
+                {
+                  "columns": [
+                    "replacedReceiptId"
+                  ],
+                  "name": "Receipt_replacedReceiptId_idx_30889495",
+                  "prefix": "Receipt_replacedReceiptId_idx",
+                  "unique": false
+                }
+              ],
+              "primaryKey": {
+                "columns": [
+                  "id"
+                ]
+              },
+              "uniques": [
+                {
+                  "columns": [
+                    "receiptNumber"
+                  ]
+                }
+              ]
+            },
             "User": {
               "columns": {
                 "createdAt": {
@@ -991,6 +1353,14 @@
                 "ONLINE",
                 "OTHER"
               ]
+            },
+            "ReceiptStatus": {
+              "kind": "valueSet",
+              "values": [
+                "ISSUED",
+                "VOID",
+                "REPLACED"
+              ]
             }
           }
         },
@@ -998,7 +1368,7 @@
         "kind": "postgres-schema"
       }
     },
-    "storageHash": "9d571113807c8a1225f0255017953d4adc0a68a31e5300134b8f4498d9a8048f"
+    "storageHash": "c95e418709ac95650477ab8e0b30e0cfa537554a7f0bf8fe0cb27dcc743ce5b2"
   },
   "execution": {
     "executionHash": "7ed0468baadc70327832dd989c7565fcc90eca3ce7ddcc1d85f8c9c0569596cb",

@@ -1,9 +1,17 @@
 
+// use prisma-8
+
 enum DonationStatus {
   RECEIVED
   PENDING
   CANCELLED
   REFUNDED
+}
+
+enum ReceiptStatus {
+  ISSUED
+  VOID
+  REPLACED
 }
 
 enum PaymentMethod {
@@ -17,55 +25,71 @@ enum PaymentMethod {
 }
 
 model User {
-  id           Int      @id @default(autoincrement())
+  id           Int                        @id @default(autoincrement())
   name         String
-  email        String   @unique
+  email        String                     @unique
   passwordHash String
-  createdAt    TimestamptzString @default(now())
+  createdAt    TimestamptzString          @default(now())
   updatedAt    temporal.updatedAtString()
+  receipts     Receipt[]
 }
 
 model Donor {
-  id          Int      @id @default(autoincrement())
-  firstName   String
-  lastName    String
-  email       String
-  phone       String
-  address     String
-  city        String
-  province    String
-  postalCode  String
-  country     String
-  isActive    Boolean  @default(true)
-  donations   Donation[]
-  createdAt   TimestamptzString @default(now())
-  updatedAt   temporal.updatedAtString()
+  id         Int                        @id @default(autoincrement())
+  firstName  String
+  lastName   String
+  email      String
+  phone      String
+  address    String
+  city       String
+  province   String
+  postalCode String
+  country    String
+  isActive   Boolean                    @default(true)
+  donations  Donation[]
+  createdAt  TimestamptzString          @default(now())
+  updatedAt  temporal.updatedAtString()
 }
 
 model Fund {
-  id          Int      @id @default(autoincrement())
-  name        String   @unique
+  id          Int                        @id @default(autoincrement())
+  name        String                     @unique
   description String
-  isActive    Boolean  @default(true)
+  isActive    Boolean                    @default(true)
   donations   Donation[]
-  createdAt   TimestamptzString @default(now())
+  createdAt   TimestamptzString          @default(now())
   updatedAt   temporal.updatedAtString()
 }
 
 model Donation {
-  id              Int            @id @default(autoincrement())
-  donor           Donor          @relation(fields: [donorId], references: [id], onDelete: Restrict)
+  id              Int                        @id @default(autoincrement())
+  donor           Donor                      @relation(fields:[donorId], references:[id], onDelete: Restrict)
   donorId         Int
-  fund            Fund           @relation(fields: [fundId], references: [id], onDelete: Restrict)
+  fund            Fund                       @relation(fields:[fundId], references:[id], onDelete: Restrict)
   fundId          Int
-  donationDate    TimestamptzString @default(now())
+  donationDate    TimestamptzString          @default(now())
   amount          Numeric
-  currency        String         @default("CAD")
+  currency        String                     @default("CAD")
   paymentMethod   PaymentMethod
   referenceNumber String
   purpose         String
   notes           String
-  status          DonationStatus @default(PENDING)
-  createdAt       TimestamptzString @default(now())
+  status          DonationStatus             @default(PENDING)
+  createdAt       TimestamptzString          @default(now())
   updatedAt       temporal.updatedAtString()
+  receipts         Receipt[]
+}
+
+model Receipt {
+  id                Int               @id @default(autoincrement())
+  donation          Donation          @relation(fields:[donationId], references:[id], onDelete: Restrict)
+  donationId        Int               
+  receiptNumber     Int               @unique @default(sql`nextval('"Receipt_receiptNumber_seq"'::regclass)`)
+  issuedDate        TimestamptzString @default(now())
+  status            ReceiptStatus     @default(ISSUED)
+  replacedReceipt   Receipt?          @relation("ReceiptReplacement", fields:[replacedReceiptId], references:[id], onDelete: Restrict)
+  replacedReceiptId Int?
+  replacements      Receipt[]         @relation("ReceiptReplacement")
+  createdBy         User              @relation(fields:[createdById], references:[id], onDelete: Restrict)
+  createdById       Int
 }
