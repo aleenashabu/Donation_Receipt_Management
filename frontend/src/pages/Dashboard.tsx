@@ -129,7 +129,7 @@ useEffect(() => {
     <h2>
       {loading
         ? "Loading..."
-        : `₹${dashboardData.totalDonations}`}
+        : `$${dashboardData.totalDonations}`}
     </h2>
   </div>
 
@@ -147,7 +147,7 @@ useEffect(() => {
     <h2>
       {loading
         ? "Loading..."
-        : `₹${dashboardData.currentMonthTotal}`}
+        : `$${dashboardData.currentMonthTotal}`}
     </h2>
   </div>
 
@@ -190,7 +190,7 @@ useEffect(() => {
             })}
           </span>
           <span>{item.donationCount}</span>
-          <span>₹{item.totalAmount}</span>
+          <span>${item.totalAmount}</span>
         </div>
       ))}
 

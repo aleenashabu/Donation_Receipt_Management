@@ -26,6 +26,7 @@ function Donations() {
 
   const [showForm, setShowForm] = useState(false);
   const [selectedDonationId, setSelectedDonationId] = useState<number | null>(null);
+  const [editingDonationId, setEditingDonationId] = useState<number | null>(null);
   const [donorId, setDonorId] = useState("");
   const [donationDate, setDonationDate] = useState("");
   const [amount, setAmount] = useState("");
@@ -68,36 +69,40 @@ function Donations() {
 
   // Save donation
   const handleSubmit = async () => {
-    if (
-      !donorId ||
-      !donationDate ||
-      !amount ||
-      !paymentMethod ||
-      !referenceNumber.trim() ||
-      !purpose.trim() ||
-      !notes.trim()
-    ) {
-      alert("Please fill in all fields");
-      return;
-    }
+  const today = new Date();
+  today.setHours(0, 0, 0, 0);
+
+  const selectedDate = new Date(donationDate);
+  selectedDate.setHours(0, 0, 0, 0);
+
+  if (selectedDate > today) {
+    alert("Donation date cannot be a future date");
+    return;
+  }
 
     try {
-      const response = await fetch("http://localhost:3000/donations", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({
-          donorId: Number(donorId),
-          fundId: 1,
-          donationDate: donationDate,
-          amount: amount,
-          paymentMethod: paymentMethod,
-          referenceNumber: referenceNumber.trim(),
-          purpose: purpose.trim(),
-          notes: notes.trim(),
-        }),
-      });
+      const url = editingDonationId
+  ? `http://localhost:3000/donations/${editingDonationId}`
+  : "http://localhost:3000/donations";
+
+const method = editingDonationId ? "PATCH" : "POST";
+
+const response = await fetch(url, {
+  method: method,
+  headers: {
+    "Content-Type": "application/json",
+  },
+  body: JSON.stringify({
+    donorId: Number(donorId),
+    fundId: 1,
+    donationDate: donationDate,
+    amount: amount,
+    paymentMethod: paymentMethod,
+    referenceNumber: referenceNumber.trim(),
+    purpose: purpose.trim(),
+    notes: notes.trim(),
+  }),
+});
 
       const data = await response.json();
 
@@ -106,7 +111,11 @@ function Donations() {
         return;
       }
 
-      alert("Donation saved successfully");
+      alert(
+        editingDonationId
+            ? "Donation updated successfully"
+            : "Donation saved successfully"
+        );
 
       console.log(data);
 
@@ -121,6 +130,7 @@ function Donations() {
 
       // Go back to donation list
       setShowForm(false);
+      setEditingDonationId(null);
 
       // Reload donations so the new donation appears
       loadDonations();
@@ -147,8 +157,12 @@ function Donations() {
       <div className="add-donor-page">
         <div className="add-donor-header">
           <div>
-            <h1>Add Donation</h1>
-            <p>Record a new donation</p>
+            <h1>{editingDonationId ? "Edit Donation" : "Add Donation"}</h1>
+            <p>
+            {editingDonationId
+                ? "Update donation details"
+                : "Record a new donation"}
+            </p>
           </div>
         </div>
 
@@ -181,12 +195,11 @@ function Donations() {
               <label>Donation Date</label>
 
               <input
-                type="date"
-                value={donationDate}
-                onChange={(event) =>
-                  setDonationDate(event.target.value)
-                }
-              />
+              type="date"
+              value={donationDate}
+              max={new Date().toISOString().split("T")[0]}
+              onChange={(e) => setDonationDate(e.target.value)}
+            />
             </div>
 
             <div className="form-group">
@@ -283,10 +296,10 @@ function Donations() {
             </button>
 
             <button
-              className="save-donor-button"
-              onClick={handleSubmit}
+            className="save-donor-button"
+            onClick={handleSubmit}
             >
-              Save Donation
+            {editingDonationId ? "Update Donation" : "Save Donation"}
             </button>
 
           </div>
@@ -342,7 +355,7 @@ function Donations() {
 
   <span>{donation.donationDate}</span>
 
-  <span>₹{donation.amount}</span>
+  <span>${donation.amount}</span>
 
   <span>{donation.paymentMethod}</span>
 
@@ -356,9 +369,22 @@ function Donations() {
       View
     </button>
 
-    <button className="edit-donor-button">
-      Edit
-    </button>
+    <button
+  className="edit-donor-button"
+  onClick={() => {
+    setEditingDonationId(donation.id);
+    setDonorId(String(donation.donorId));
+    setDonationDate(donation.donationDate);
+    setAmount(donation.amount);
+    setPaymentMethod(donation.paymentMethod);
+    setReferenceNumber(donation.referenceNumber);
+    setPurpose(donation.purpose);
+    setNotes(donation.notes);
+    setShowForm(true);
+  }}
+>
+  Edit
+</button>
   </div>
 </div>
           ))
