@@ -151,10 +151,7 @@ useEffect(() => {
     </h2>
   </div>
 
-  <div className="summary-card">
-    <p>Active donors</p>
-    <h2>0</h2>
-  </div>
+ 
 
 </div>
 

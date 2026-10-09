@@ -1,17 +1,21 @@
+
 import { Injectable } from '@nestjs/common';
 import { db } from '../prisma/db.js';
 
 @Injectable()
 export class DashboardService {
   async getDashboard() {
-    const donations = await db.orm.public.Donation.all();
+    const donations = await db.orm.public.Donation
+      .where({ status: 'RECEIVED' })
+      .all();
 
     const totalDonations = donations.reduce(
       (total, donation) => total + Number(donation.amount),
       0,
     );
 
-    const donationCount = donations.length;
+    const allDonations = await db.orm.public.Donation.all();
+    const donationCount = allDonations.length;
 
     const now = new Date();
 
@@ -37,7 +41,9 @@ export class DashboardService {
   }
 
   async getMonthlySummary() {
-    const donations = await db.orm.public.Donation.all();
+    const donations = await db.orm.public.Donation
+      .where({ status: 'RECEIVED' })
+      .all();
 
     const monthlySummary: Record<
       string,
