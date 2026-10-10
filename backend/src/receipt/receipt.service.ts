@@ -93,61 +93,74 @@ async replaceReceipt(id: number, createdById: number) {
   });
 }
 
-  async findAll(
-    status?: string,
-    donorId?: number,
-    year?: number,
-    date?: string,
-  ) {
-    let query = db.orm.public.Receipt;
+async findAll(
+  status?: string,
+  donorId?: number,
+  year?: number,
+  date?: string,
+) {
+  let query = db.orm.public.Receipt;
 
-    if (status) {
-      query = query.where({
-        status: status as 'ISSUED' | 'VOID' | 'REPLACED',
-      });
-    }
-
-
-    let receipts = await query.all();
-
-    if (donorId) {
-      const donations = await db.orm.public.Donation
-        .where({ donorId })
-        .all();
-
-      const donationIds = new Set(
-        donations.map((donation) => donation.id),
-      );
-
-      receipts = receipts.filter((receipt) =>
-        donationIds.has(receipt.donationId),
-      );
-    }
-
-    if (year) {
-      receipts = receipts.filter((receipt) => {
-        const receiptYear = new Date(
-          receipt.issuedDate,
-        ).getFullYear();
-
-        return receiptYear === year;
-      });
-    }
-
-    if (date) {
-      receipts = receipts.filter((receipt) => {
-        const receiptDate = new Date(
-          receipt.issuedDate,
-        )
-          .toISOString()
-          .split('T')[0];
-
-        return receiptDate === date;
-      });
-    }
-
-    return receipts;
+  if (status) {
+    query = query.where({
+      status: status as 'ISSUED' | 'VOID' | 'REPLACED',
+    });
   }
+
+  let receipts = await query.all();
+
+  if (donorId) {
+    const donations = await db.orm.public.Donation
+      .where({ donorId })
+      .all();
+
+    const donationIds = new Set(
+      donations.map((donation) => donation.id),
+    );
+
+    receipts = receipts.filter((receipt) =>
+      donationIds.has(receipt.donationId),
+    );
+  }
+
+  if (year) {
+    receipts = receipts.filter((receipt) =>
+      new Date(receipt.issuedDate).getFullYear() === year
+    );
+  }
+
+  if (date) {
+    receipts = receipts.filter((receipt) =>
+      new Date(receipt.issuedDate).toISOString().split('T')[0] === date
+    );
+  }
+
+  const result = await Promise.all(
+    receipts.map(async (receipt) => {
+      const donation = await db.orm.public.Donation
+        .where({ id: receipt.donationId })
+        .first();
+
+      if (!donation) {
+        return { ...receipt, amount: 0, donorName: 'Unknown donor' };
+      }
+
+      const donor = await db.orm.public.Donor
+        .where({ id: donation.donorId })
+        .first();
+
+      return {
+        ...receipt,
+        amount: donation.amount,
+        donorName: donor
+          ? `${donor.firstName} ${donor.lastName}`
+          : 'Unknown donor',
+      };
+    }),
+  );
+
+  return result;
+}
 
   async getDashboard() {
   const issued = await db.orm.public.Receipt

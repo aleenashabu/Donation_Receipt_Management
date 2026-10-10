@@ -2,13 +2,20 @@ import { useState } from "react";
 import Register from "./Register";
 import Dashboard from "./Dashboard";
 
+type User = {
+  id: number;
+  name: string;
+  email: string;
+};
+
 function Login() 
 {
     const [email, setEmail] = useState('')
     const[password,setPassword]=useState('')
     const[showRegister,setShowRegister]=useState(false);
     const[showDashboard,setShowDashboard]=useState(false);
-    
+    const [loggedInUser, setLoggedInUser] = useState<User | null>(null);
+
     const resetLogin = () => {
     setEmail('');
     setPassword('');
@@ -46,6 +53,7 @@ if (!emailPattern.test(email.trim())) {
     });
 
     const data = await response.json();
+    console.log("Login response:", data);
 
     // Wrong email or password
     if (!response.ok) {
@@ -54,7 +62,13 @@ if (!emailPattern.test(email.trim())) {
     }
 
     // Correct email and password
-    setShowDashboard(true);
+  if (!data.user) {
+    alert("User details were not returned by the backend.");
+    return;
+  }
+
+  setLoggedInUser(data.user);
+  setShowDashboard(true);
 
   } catch (error) {
     alert("Unable to connect to the server");
@@ -71,13 +85,17 @@ if (showRegister) {
 );
 }
 
-if (showDashboard) {
-  return (<Dashboard onLogout={() => {
-    resetLogin();
-    setShowDashboard(false)
-  }}
-  />
-);
+if (showDashboard && loggedInUser) {
+  return (
+    <Dashboard
+      user={loggedInUser}
+      onLogout={() => {
+        resetLogin();
+        setLoggedInUser(null);
+        setShowDashboard(false);
+      }}
+    />
+  );
 }
 
     return(

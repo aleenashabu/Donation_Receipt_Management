@@ -3,6 +3,13 @@ import Donors from "./Donors";
 import AddDonor from "./AddDonor";
 import EditDonor from "./EditDonor";
 import Donations from "./Donations";
+import Receipts from "./Receipts";
+
+type User = {
+  id: number;
+  name: string;
+  email: string;
+};
 
 type Donor = {
   id: number;
@@ -18,7 +25,13 @@ type Donor = {
   isActive: boolean;
 };
 
-function Dashboard({ onLogout }: { onLogout: () => void }) {
+function Dashboard({
+  user,
+  onLogout,
+}: {
+  user: User;
+  onLogout: () => void;
+}) {
   const [currentPage, setCurrentPage] = useState("dashboard");
   const [selectedDonor, setSelectedDonor] = useState<Donor | null>(null);
   const [dashboardData, setDashboardData] = useState({
@@ -93,6 +106,13 @@ useEffect(() => {
             🎯 Funds
           </div>
 
+          <div
+            className={`menu-item ${currentPage === "receipts" ? "active" : ""}`}
+            onClick={() => setCurrentPage("receipts")}
+          >
+            🧾 Receipts
+          </div>
+
         </div>
 
         <button className="logout-button" onClick={onLogout}>
@@ -115,7 +135,7 @@ useEffect(() => {
             </div>
 
             <p className="signed-in">
-              Signed in as <strong>User</strong>
+              Signed in as <strong>{user.name}</strong>
             </p>
 
           </div>
@@ -261,6 +281,12 @@ useEffect(() => {
 {currentPage === "donations" && (
   <div className="dashboard-content">
     <Donations />
+  </div>
+)}
+
+{currentPage === "receipts" && (
+  <div className="dashboard-content">
+    <Receipts user={user} />
   </div>
 )}
 

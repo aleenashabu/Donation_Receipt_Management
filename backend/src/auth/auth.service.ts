@@ -34,7 +34,12 @@ export class AuthService //we put authentication-related logic here.
     });
 
     return {
-      access_token: accessToken,   // frontend recieves the token
+      access_token: accessToken,
+        user: {
+        id: user.id,
+        name: user.name,
+        email: user.email,
+      }, // frontend recieves the token
     };
   }
 
