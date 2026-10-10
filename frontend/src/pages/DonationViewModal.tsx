@@ -116,7 +116,7 @@ function DonationViewModal({
 
           <div className="donation-detail-row">
             <strong>Date</strong>
-            <span>{donation.donationDate}</span>
+            <span>{donation.donationDate.slice(0, 10)}</span>
           </div>
 
           <div className="donation-detail-row">
@@ -134,11 +134,6 @@ function DonationViewModal({
           <div className="donation-detail-row">
             <strong>Reference Number</strong>
             <span>{donation.referenceNumber}</span>
-          </div>
-
-          <div className="donation-detail-row">
-            <strong>Fund</strong>
-            <span>Community Care</span>
           </div>
 
           <div className="donation-detail-row">

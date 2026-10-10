@@ -506,17 +506,7 @@ const response = await fetch(url, {
             <div className="donation-list-row" key={donation.id}>
   <span>{getDonorName(donation.donorId)}</span>
 
-  <span>
-  {new Date(donation.donationDate).toLocaleString("en-CA", {
-    timeZone: "America/Edmonton",
-    year: "numeric",
-    month: "2-digit",
-    day: "2-digit",
-    hour: "2-digit",
-    minute: "2-digit",
-    hour12: true,
-  })}
-</span>
+  <span>{donation.donationDate.slice(0, 10)}</span>
   <span>${donation.amount}</span>
 
   <span>{donation.paymentMethod.replace(/_/g, " ")}</span>

@@ -209,7 +209,7 @@ function Receipts({ user }: { user: User }) {
                   <td>
                     $ {Number(receipt.amount ?? 0).toFixed(2)}
                   </td>
-                  <td>{receipt.issuedDate}</td>
+                  <td>{new Date(receipt.issuedDate).toISOString().slice(0, 16) .replace("T", " ")}</td>
                   <td>
                     <span
                       className={`receipt-status ${receipt.status.toLowerCase()}`}
@@ -221,23 +221,91 @@ function Receipts({ user }: { user: User }) {
                     <button onClick={() => setViewReceipt(receipt)}>
                        View
                     </button>
-
                     {receipt.status === "ISSUED" && (
-                      <button
-                        onClick={() =>
-                          alert("Void will be connected to the backend later.")
-                        }
-                      >
+  <button
+    onClick={async () => {
+     try {
+        const response = await fetch(
+          `http://localhost:3000/receipts/${receipt.id}/void`,
+          {
+            method: "PATCH",
+          }
+        );
+
+        const data = await response.json();
+
+        if (!response.ok) {
+          alert(data.message || "Failed to void receipt.");
+          return;
+        }
+
+        alert(`Receipt #${receipt.receiptNumber} voided successfully!`);
+
+        const refreshResponse = await fetch(
+          "http://localhost:3000/receipts"
+        );
+
+        if (refreshResponse.ok) {
+          const updatedReceipts = await refreshResponse.json();
+          setReceipts(updatedReceipts);
+        }
+      } catch (error) {
+        console.error("Error voiding receipt:", error);
+        alert("Unable to connect to the backend.");
+      }
+    }}
+  >
+
+                      
                         Void
                       </button>
                     )}
 
                     {receipt.status === "VOID" && (
-                      <button
-                        onClick={() =>
-                          alert("Replacement will be connected to the backend later.")
-                        }
-                      >
+  <button
+    onClick={async () => {
+      const confirmed = window.confirm(
+        `Create a replacement for receipt #${receipt.receiptNumber}?`
+      );
+
+      if (!confirmed) return;
+
+      try {
+        const response = await fetch(
+          `http://localhost:3000/receipts/${receipt.id}/replace`,
+          {
+            method: "POST",
+            headers: {
+              "Content-Type": "application/json",
+            },
+            body: JSON.stringify({
+              createdById: user.id,
+            }),
+          }
+        );
+
+        const data = await response.json();
+
+        if (!response.ok) {
+          alert(data.message || "Failed to replace receipt.");
+          return;
+        }
+
+        alert("Replacement receipt created successfully!");
+
+        const refreshResponse = await fetch(
+          "http://localhost:3000/receipts"
+        );
+
+        if (refreshResponse.ok) {
+          setReceipts(await refreshResponse.json());
+        }
+      } catch (error) {
+        console.error("Error replacing receipt:", error);
+        alert("Unable to connect to the backend.");
+      }
+    }}
+  >          
                         Replace
                       </button>
                     )}
@@ -401,7 +469,7 @@ function Receipts({ user }: { user: User }) {
               <div>
                 <strong>Issued Date</strong>
                 <span>
-                  {new Date(viewReceipt.issuedDate).toLocaleDateString()}
+                  {new Date(viewReceipt.issuedDate).toISOString().slice(0, 16).replace("T", " ")}
                 </span>
               </div>
 
