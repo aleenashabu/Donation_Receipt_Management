@@ -14,6 +14,7 @@ type Donation = {
   donationDate: string;
   amount: string;
   paymentMethod: string;
+  status: string;
   referenceNumber: string;
   purpose: string;
   notes: string;
@@ -31,6 +32,7 @@ function Donations() {
   const [donationDate, setDonationDate] = useState("");
   const [amount, setAmount] = useState("");
   const [paymentMethod, setPaymentMethod] = useState("");
+  const [status, setStatus] = useState("");
   const [referenceNumber, setReferenceNumber] = useState("");
   const [purpose, setPurpose] = useState("");
   const [notes, setNotes] = useState("");
@@ -114,6 +116,38 @@ function Donations() {
     return;
   }
 
+  
+if (!donorId) {
+  alert("Please select a donor");
+  return;
+}
+
+if (!donationDate) {
+  alert("Please select a donation date");
+  return;
+}
+
+if (!amount.trim() || Number(amount) <= 0) {
+  alert("Please enter an amount greater than 0");
+  return;
+}
+
+if (!paymentMethod) {
+  alert("Please select a payment method");
+  return;
+}
+
+if (!referenceNumber.trim()) {
+  alert("Please enter a reference number");
+  return;
+}
+
+
+if (!status) {
+    alert("Please select a donation status");
+    return;
+  }
+
     try {
       const url = editingDonationId
   ? `http://localhost:3000/donations/${editingDonationId}`
@@ -132,6 +166,7 @@ const response = await fetch(url, {
     donationDate: donationDate,
     amount: amount,
     paymentMethod: paymentMethod,
+    status: status,
     referenceNumber: referenceNumber.trim(),
     purpose: purpose.trim(),
     notes: notes.trim(),
@@ -158,6 +193,7 @@ const response = await fetch(url, {
       setDonationDate("");
       setAmount("");
       setPaymentMethod("");
+      setStatus("");
       setReferenceNumber("");
       setPurpose("");
       setNotes("");
@@ -291,6 +327,25 @@ const response = await fetch(url, {
 
           </div>
 
+          
+          {/* Donation Status */}
+          <div className="full-width">
+            <div className="form-group">
+              <label>Donation Status</label>
+              <select
+                value={status}
+                onChange={(event) => setStatus(event.target.value)}
+              >
+                <option value="">Select donation status</option>
+                <option value="RECEIVED">Received</option>
+                <option value="PENDING">Pending</option>
+                <option value="CANCELLED">Cancelled</option>
+                <option value="REFUNDED">Refunded</option>
+              </select>
+            </div>
+          </div>
+
+         
           {/* Purpose */}
           <div className="full-width">
             <div className="form-group">
@@ -434,6 +489,7 @@ const response = await fetch(url, {
           <span>AMOUNT</span>
           <span>PAYMENT</span>
           <span>REFERENCE</span>
+          <span>STATUS</span>
           <span>ACTIONS</span>
         </div>
 
@@ -450,13 +506,26 @@ const response = await fetch(url, {
             <div className="donation-list-row" key={donation.id}>
   <span>{getDonorName(donation.donorId)}</span>
 
-  <span>{donation.donationDate}</span>
-
+  <span>
+  {new Date(donation.donationDate).toLocaleString("en-CA", {
+    timeZone: "America/Edmonton",
+    year: "numeric",
+    month: "2-digit",
+    day: "2-digit",
+    hour: "2-digit",
+    minute: "2-digit",
+    hour12: true,
+  })}
+</span>
   <span>${donation.amount}</span>
 
-  <span>{donation.paymentMethod}</span>
+  <span>{donation.paymentMethod.replace(/_/g, " ")}</span>
 
   <span>{donation.referenceNumber}</span>
+
+  <span className={`status ${donation.status.toLowerCase()}`}>
+  {donation.status}
+</span>
 
   <div className="donation-actions">
     <button
@@ -474,6 +543,7 @@ const response = await fetch(url, {
     setDonationDate(donation.donationDate);
     setAmount(donation.amount);
     setPaymentMethod(donation.paymentMethod);
+    setStatus(donation.status);
     setReferenceNumber(donation.referenceNumber);
     setPurpose(donation.purpose);
     setNotes(donation.notes);

@@ -18,6 +18,15 @@ enum PaymentMethod {
   OTHER = 'OTHER',
 }
 
+
+enum DonationStatus {
+  RECEIVED = 'RECEIVED',
+  PENDING = 'PENDING',
+  CANCELLED = 'CANCELLED',
+  REFUNDED = 'REFUNDED',
+}
+
+
 export class CreateDonationDto {
 
 @IsInt()
@@ -41,6 +50,10 @@ amount!: string;
 
 @IsEnum(PaymentMethod)
 paymentMethod!: PaymentMethod;
+
+@IsEnum(DonationStatus)
+@IsNotEmpty()
+status!: DonationStatus;
 
 @IsString()
 @IsNotEmpty()

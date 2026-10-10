@@ -13,6 +13,8 @@ type Donor = {
   postalCode: string;
   country: string;
   isActive: boolean;
+  donationCount: number;
+  
 };
 
 function Donors({
@@ -67,7 +69,7 @@ useEffect(() => {
         </div>
 
         <button className="add-donor-button" onClick={onAddDonor}>
-           Add Donor
+           + Add Donor
         </button>
       </div>
 
@@ -118,10 +120,10 @@ useEffect(() => {
     >
       {donor.isActive ? "Active" : "Inactive"}
     </span>
-  </span>
-  <span>
     
   </span>
+    
+   <span> {donor.donationCount} </span>
   
   <div className="donor-actions">
     <button className="view-donor-button" onClick={() => setSelectedDonor(donor)}>

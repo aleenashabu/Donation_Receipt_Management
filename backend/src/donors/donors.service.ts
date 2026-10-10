@@ -5,9 +5,27 @@ import { UpdateDonorDto } from './dto/update-donor.dto.js';
 
 @Injectable()
 export class DonorsService {
-  async findAll() {
-    return db.orm.public.Donor.all();
-  }
+
+  
+async findAll() {
+  const donors = await db.orm.public.Donor.all();
+
+  const donorsWithDonationCount = await Promise.all(
+    donors.map(async (donor) => {
+      const donations = await db.orm.public.Donation
+        .where({ donorId: donor.id })
+        .all();
+
+      return {
+        ...donor,
+        donationCount: donations.length,
+      };
+    }),
+  );
+
+  return donorsWithDonationCount;
+}
+
 
   async create(createDonorDto: CreateDonorDto) {
     return db.orm.public.Donor.create(createDonorDto);
