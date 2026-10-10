@@ -19,6 +19,7 @@ type Donation = {
   currency: string;
   donationDate: string;
   referenceNumber: string;
+  purpose: string;
 };
 
 type Donor = {
@@ -192,7 +193,7 @@ function Receipts({ user }: { user: User }) {
               <tr>
                 <th>Receipt #</th>
                 <th>Donor</th>
-                <th>Donation</th>
+                <th>Purpose</th>
                 <th>Amount</th>
                 <th>Issued Date</th>
                 <th>Status</th>
@@ -205,8 +206,11 @@ function Receipts({ user }: { user: User }) {
                 <tr key={receipt.id}>
                   <td>{receipt.receiptNumber}</td>
                   <td>{receipt.donorName}</td>
-                  <td>#{receipt.donationId}</td>
                   <td>
+                    {donations.find(
+                      (donation) => donation.id === receipt.donationId
+                    )?.purpose ?? "Not specified"}
+                  </td>                  <td>
                     $ {Number(receipt.amount ?? 0).toFixed(2)}
                   </td>
                   <td>{new Date(receipt.issuedDate).toISOString().slice(0, 16) .replace("T", " ")}</td>

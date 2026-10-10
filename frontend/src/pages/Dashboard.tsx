@@ -102,10 +102,6 @@ useEffect(() => {
             💰 Donations
           </div>
 
-          <div className="menu-item">
-            🎯 Funds
-          </div>
-
           <div
             className={`menu-item ${currentPage === "receipts" ? "active" : ""}`}
             onClick={() => setCurrentPage("receipts")}
